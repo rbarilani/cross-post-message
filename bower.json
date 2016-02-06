@@ -1,7 +1,7 @@
 {
   "name": "cross-post-message",
   "description": "",
-  "main": "index.js",
+  "main": "cross-post-message.js",
   "license": "MIT",
   "moduleType": [],
   "homepage": "",
@@ -13,7 +13,5 @@
     "test",
     "tests"
   ],
-  "dependencies": {
-    "lodash": "^4.2.1"
-  }
+  "dependencies": {}
 }
