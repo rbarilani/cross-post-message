@@ -182,7 +182,7 @@ var Hub = function () {
     this._debug = _opt.debug;
     this._definitions = [];
     this._allowedOrigins = _opt.allowedOrigins || [];
-    window.parent.postMessage(Common.HUB_STATUS.READY, '*');
+    postMessage(Common.HUB_STATUS.READY);
     installListener.call(this);
   }
 
@@ -263,7 +263,7 @@ function onRequest(request) {
       status: 404,
       body: new Error('Definition not found')
     });
-    window.parent.postMessage(JSON.stringify(response), '*');
+    postMessage(response);
     return;
   }
 
@@ -288,7 +288,7 @@ function onRequest(request) {
     } else {
       response = new Response(request, definitionResponse);
     }
-    window.parent.postMessage(JSON.stringify(response), '*');
+    postMessage(response);
   }).catch(function (definitionResponse) {
     var response;
     if (typeof definitionResponse === 'string') {
@@ -302,8 +302,21 @@ function onRequest(request) {
     if (Common.isSuccessStatus(response.status)) {
       response.status = 500;
     }
-    window.parent.postMessage(JSON.stringify(response), '*');
+    postMessage(response);
   });
+}
+
+/**
+ * Send a message to the parent window (the client)
+ * If message it's not a string, transform it into JSON string
+ *
+ * @private
+ *
+ * @param {string|object} message
+ */
+function postMessage(message) {
+  var _message = typeof message === 'string' ? message : JSON.stringify(message);
+  window.parent.postMessage(_message, '*');
 }
 
 /**
