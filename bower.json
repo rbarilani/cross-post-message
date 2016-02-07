@@ -1,7 +1,10 @@
 {
   "name": "cross-post-message",
   "description": "",
-  "main": "cross-post-message.js",
+  "main": [
+    "dist/client.js",
+    "dist/hub.js"
+  ],
   "license": "MIT",
   "moduleType": [],
   "homepage": "",
