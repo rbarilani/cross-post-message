@@ -56,8 +56,9 @@ var Hub = function () {
    * @constructor
    *
    * @example
-   * let CrossPostMessage = require('cross-post-message');
-   * let hub = new CrossPostMessage.Hub({
+   * import {Hub} from 'cross-post-message';
+   *
+   * let hub = new Hub({
    *  allowedOrigins: ['https://app.com', /:(www\.)?example.com$/ ]
    * });
    *

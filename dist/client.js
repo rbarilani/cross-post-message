@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _WindowChannel = require('./WindowChannel.js');
+var _WindowChannel = require('./WindowChannel');
 
 var _WindowChannel2 = _interopRequireDefault(_WindowChannel);
 
@@ -49,6 +49,27 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * @requires EventEmitter
  * @requires Request
  * @requires Window
+ *
+ * @example
+ * import {Client} from 'cross-post-message';
+ *
+ * let client = new Client('http://hub-domain.hub');
+ *
+ * client.on('ready', function () {
+ *   client
+ *     .request({ method: 'GET',  uri: '/info' })
+ *     .then(function (response) {
+ *       console.log('success', response.body); // OUTPUT: foo
+ *     })
+ *     .catch(function (response) {
+ *       console.error(response);
+ *     });
+ * });
+ *
+ * client.on('response', function (response) {
+ *   console.log('response to request: ' + response.request.id , response);
+ * });
+ *
  */
 
 var Client = function (_EventEmitter) {
@@ -275,7 +296,7 @@ function getOrigin(url) {
   return origin;
 }
 
-},{"./EventEmitter":2,"./HubStatus":3,"./Request":4,"./Util":5,"./Window":6,"./WindowChannel.js":7}],2:[function(require,module,exports){
+},{"./EventEmitter":2,"./HubStatus":3,"./Request":4,"./Util":5,"./Window":6,"./WindowChannel":7}],2:[function(require,module,exports){
 'use strict';
 
 /**
