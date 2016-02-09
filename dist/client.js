@@ -1,20 +1,43 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.CrossPostMessageClient = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _WindowChannel = require('./WindowChannel.js');
+
+var _WindowChannel2 = _interopRequireDefault(_WindowChannel);
+
+var _HubStatus = require('./HubStatus');
+
+var _HubStatus2 = _interopRequireDefault(_HubStatus);
+
+var _Util = require('./Util');
+
+var _Util2 = _interopRequireDefault(_Util);
+
+var _EventEmitter2 = require('./EventEmitter');
+
+var _EventEmitter3 = _interopRequireDefault(_EventEmitter2);
+
+var _Request = require('./Request');
+
+var _Request2 = _interopRequireDefault(_Request);
+
+var _Window = require('./Window');
+
+var _Window2 = _interopRequireDefault(_Window);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var Window = require('./Window');
-var WindowChannel = require('./WindowChannel');
-var HubStatus = require('./HubStatus');
-var Util = require('./Util');
-var EventEmitter = require('./EventEmitter');
-var Request = require('./Request');
 
 /**
  * Cross Post Message Client
@@ -53,10 +76,10 @@ var Client = function (_EventEmitter) {
     _this._debug = _opt.debug || false;
     _this._Promise = _opt.promise || Promise;
     _this._timeout = _opt.timeout || 5000;
-    _this._id = Util.generateUUID();
+    _this._id = _Util2.default.generateUUID();
     _this._origin = getOrigin(url);
     _this._frame = createFrame(url, 'cross-post-message:' + _this._id).contentWindow;
-    _this._hub = new WindowChannel(_this._frame);
+    _this._hub = new _WindowChannel2.default(_this._frame);
     _this._connected = false;
     _this._pendingRequests = {};
     installListener.call(_this);
@@ -79,7 +102,7 @@ var Client = function (_EventEmitter) {
     value: function request(attributes, options) {
       var _this2 = this;
 
-      var _request = new Request(attributes);
+      var _request = new _Request2.default(attributes);
       var _opt = options || {};
 
       if (!this._connected) {
@@ -89,7 +112,7 @@ var Client = function (_EventEmitter) {
       this._hub.postMessage(_request, this._origin);
 
       return new this._Promise(function (resolve, reject) {
-        var timeout = Window.setTimeout(function () {
+        var timeout = _Window2.default.setTimeout(function () {
           delete _this2._pendingRequests[_request.id];
           reject(new Error('cross-post-message-client request. Timeout error', _request));
         }, _opt.timeout || _this2._timeout);
@@ -104,9 +127,7 @@ var Client = function (_EventEmitter) {
   }]);
 
   return Client;
-}(EventEmitter);
-
-module.exports = Client;
+}(_EventEmitter3.default);
 
 /**
  * Installs the necessary listener for the window message event.
@@ -118,6 +139,8 @@ module.exports = Client;
  *
  * @private
  */
+
+exports.default = Client;
 function installListener() {
   window.addEventListener('message', function (e) {
 
@@ -131,7 +154,7 @@ function installListener() {
       return;
     }
 
-    if (e.data === HubStatus.READY) {
+    if (e.data === _HubStatus2.default.READY) {
       if (this._connected) {
         return;
       }
@@ -169,7 +192,7 @@ function onResponse(response) {
 
   clearTimeout(pendingRequest.timeout);
 
-  Util.isSuccessHttpStatus(response.status) ? pendingRequest.resolve(response) : pendingRequest.reject(response);
+  _Util2.default.isSuccessHttpStatus(response.status) ? pendingRequest.resolve(response) : pendingRequest.reject(response);
 
   delete this._pendingRequests[response.request.id];
 }
@@ -200,7 +223,7 @@ function createFrame(url, id) {
 
   var frame, key;
 
-  frame = Window.document.createElement('iframe');
+  frame = _Window2.default.document.createElement('iframe');
   frame.id = id;
 
   // Style the iframe
@@ -210,7 +233,7 @@ function createFrame(url, id) {
     }
   }
 
-  Window.document.body.appendChild(frame);
+  _Window2.default.document.body.appendChild(frame);
   frame.src = url;
 
   return frame;
@@ -233,15 +256,15 @@ function getOrigin(url) {
       protocol = undefined,
       origin = undefined;
 
-  uri = Window.document.createElement('a');
+  uri = _Window2.default.document.createElement('a');
   uri.href = url;
 
   if (!uri.host) {
-    uri = Window.location;
+    uri = _Window2.default.location;
   }
 
   if (!uri.protocol || uri.protocol === ':') {
-    protocol = Window.location.protocol;
+    protocol = _Window2.default.location.protocol;
   } else {
     protocol = uri.protocol;
   }
@@ -252,7 +275,7 @@ function getOrigin(url) {
   return origin;
 }
 
-},{"./EventEmitter":2,"./HubStatus":3,"./Request":5,"./Util":6,"./Window":7,"./WindowChannel":8}],2:[function(require,module,exports){
+},{"./EventEmitter":2,"./HubStatus":3,"./Request":4,"./Util":5,"./Window":6,"./WindowChannel.js":7}],2:[function(require,module,exports){
 'use strict';
 
 /**
@@ -260,6 +283,10 @@ function getOrigin(url) {
  */
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -320,7 +347,7 @@ var EventEmitter = function () {
   return EventEmitter;
 }();
 
-module.exports = EventEmitter;
+exports.default = EventEmitter;
 
 },{}],3:[function(require,module,exports){
 'use strict';
@@ -340,16 +367,19 @@ var HubStatus = {
 exports.default = HubStatus;
 
 },{}],4:[function(require,module,exports){
-"use strict";
-
-module.exports = window.Math;
-
-},{}],5:[function(require,module,exports){
 'use strict';
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
-var Util = require('./Util');
+var _Util = require('./Util');
+
+var _Util2 = _interopRequireDefault(_Util);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * Cross Post Message Client Request
@@ -370,22 +400,24 @@ var Request =
 function Request(attributes) {
   _classCallCheck(this, Request);
 
-  Util.extend(this, attributes);
+  _Util2.default.extend(this, attributes);
   this.event = 'request';
-  this.id = Util.generateUUID();
+  this.id = _Util2.default.generateUUID();
 };
 
-module.exports = Request;
+exports.default = Request;
 
-},{"./Util":6}],6:[function(require,module,exports){
+},{"./Util":5}],5:[function(require,module,exports){
 'use strict';
-
-var Math = require('./Math');
 
 /**
  * @name Util
  * @requires Math
  */
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 var Util = {
   /**
    * UUID v4 generation, taken from: http://stackoverflow.com/questions/
@@ -444,14 +476,17 @@ var Util = {
   }
 };
 
-module.exports = Util;
+exports.default = Util;
 
-},{"./Math":4}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
-module.exports = window;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = window;
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 /**
@@ -459,6 +494,10 @@ module.exports = window;
  */
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -495,7 +534,17 @@ var WindowChannel = function () {
   return WindowChannel;
 }();
 
-module.exports = WindowChannel;
+exports.default = WindowChannel;
 
-},{}]},{},[1])(1)
-});
+},{}],8:[function(require,module,exports){
+'use strict';
+
+var _Client = require('../Client');
+
+var _Client2 = _interopRequireDefault(_Client);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+window.CrossPostMessageClient = _Client2.default;
+
+},{"../Client":1}]},{},[8]);

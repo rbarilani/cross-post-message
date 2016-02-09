@@ -2,7 +2,6 @@
   "name": "cross-post-message",
   "version": "0.0.0",
   "description": "postMessage api cross domain",
-  "main": "lib/index.js",
   "scripts": {
     "build": "./bin/build.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
