@@ -438,7 +438,7 @@ module.exports = Util;
 'use strict';
 
 /**
- * @class Channel
+ * @class WindowChannel
  * @requires Window
  */
 
@@ -446,14 +446,14 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Channel = function () {
+var WindowChannel = function () {
   /**
    * @constructor
-   * @param {Window} source
+   * @param {Window|{postMessage: Function}} source
    */
 
-  function Channel(source) {
-    _classCallCheck(this, Channel);
+  function WindowChannel(source) {
+    _classCallCheck(this, WindowChannel);
 
     /**
      * @type {Window}
@@ -468,7 +468,7 @@ var Channel = function () {
    * @param transfer
    */
 
-  _createClass(Channel, [{
+  _createClass(WindowChannel, [{
     key: 'postMessage',
     value: function postMessage(message, targetOrigin, transfer) {
       var _message = typeof message === 'string' ? message : JSON.stringify(message);
@@ -476,10 +476,10 @@ var Channel = function () {
     }
   }]);
 
-  return Channel;
+  return WindowChannel;
 }();
 
-module.exports = Channel;
+module.exports = WindowChannel;
 
 },{}]},{},[1])(1)
 });
