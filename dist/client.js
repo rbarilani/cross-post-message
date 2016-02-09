@@ -252,15 +252,15 @@ function getOrigin(url) {
 }
 
 },{"./EventEmitter":2,"./HubStatus":3,"./Request":4,"./Util":5,"./WindowChannel":6}],2:[function(require,module,exports){
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+'use strict';
 
 /**
  * @class EventEmitter
  */
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var EventEmitter = function () {
 
@@ -283,7 +283,7 @@ var EventEmitter = function () {
    */
 
   _createClass(EventEmitter, [{
-    key: "on",
+    key: 'on',
     value: function on(eventName, cb) {
       this._callbacks[eventName] = this._callbacks[eventName] || [];
       this._callbacks[eventName].push(cb);
@@ -299,19 +299,17 @@ var EventEmitter = function () {
      */
 
   }, {
-    key: "trigger",
-    value: function trigger(eventName) {
+    key: 'trigger',
+    value: function trigger(eventName, /* ... */args) {
       var _this = this;
 
-      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        args[_key - 1] = arguments[_key];
-      }
-
+      var _args = Array.prototype.slice.call(arguments);
+      _args.shift();
       if (!this._callbacks[eventName]) {
         return this;
       }
       this._callbacks[eventName].forEach(function (cb) {
-        cb.apply(_this, args);
+        cb.apply(_this, _args);
       });
 
       return this;
@@ -326,13 +324,14 @@ module.exports = EventEmitter;
 },{}],3:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 /**
  * @name HubStatus
  * @type {{READY: string}}
  */
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 var HubStatus = {
   READY: 'ready'
 };
@@ -438,14 +437,14 @@ module.exports = Util;
 },{}],6:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 /**
  * @class Channel
  * @requires Window
  */
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Channel = function () {
   /**
