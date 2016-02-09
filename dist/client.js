@@ -7,27 +7,31 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _WindowChannel = require('./WindowChannel');
+var _WindowChannel = require('./WindowChannel.js');
 
 var _WindowChannel2 = _interopRequireDefault(_WindowChannel);
 
-var _HubStatus = require('./HubStatus');
+var _HubStatus = require('./HubStatus.js');
 
 var _HubStatus2 = _interopRequireDefault(_HubStatus);
 
-var _Util = require('./Util');
+var _Util = require('./Util.js');
 
 var _Util2 = _interopRequireDefault(_Util);
 
-var _EventEmitter2 = require('./EventEmitter');
+var _EventEmitter2 = require('./EventEmitter.js');
 
 var _EventEmitter3 = _interopRequireDefault(_EventEmitter2);
 
-var _Request = require('./Request');
+var _Request = require('./Request.js');
 
 var _Request2 = _interopRequireDefault(_Request);
 
-var _Window = require('./Window');
+var _Response = require('./Response.js');
+
+var _Response2 = _interopRequireDefault(_Response);
+
+var _Window = require('./Window.js');
 
 var _Window2 = _interopRequireDefault(_Window);
 
@@ -41,14 +45,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 /**
  * Cross Post Message Client
- * @class Client
  *
- * @requires WindowChannel
- * @requires HubStatus
- * @requires Util
- * @requires EventEmitter
- * @requires Request
- * @requires Window
+ * @class Client
  *
  * @example
  * import {Client} from 'cross-post-message';
@@ -164,6 +162,8 @@ var Client = function (_EventEmitter) {
 exports.default = Client;
 function installListener() {
   window.addEventListener('message', function (e) {
+    var rawResponse = undefined,
+        response = undefined;
 
     if (this._debug) {
       console.log('client received a message', e);
@@ -185,12 +185,13 @@ function installListener() {
     }
 
     try {
-      var response = JSON.parse(e.data);
+      rawResponse = JSON.parse(e.data);
     } catch (e) {
       console.error(e);
     }
 
-    if (response && response.event === 'response') {
+    if (_Response2.default.isRaw(rawResponse)) {
+      response = _Response2.default.fromRaw(rawResponse);
       this.trigger('response', response);
       onResponse.call(this, response);
     }
@@ -202,7 +203,7 @@ function installListener() {
  *
  * @private
  *
- * @param response
+ * @param {object} response
  */
 function onResponse(response) {
   var pendingRequest = this._pendingRequests[response.request.id];
@@ -296,7 +297,7 @@ function getOrigin(url) {
   return origin;
 }
 
-},{"./EventEmitter":2,"./HubStatus":3,"./Request":4,"./Util":5,"./Window":6,"./WindowChannel":7}],2:[function(require,module,exports){
+},{"./EventEmitter.js":2,"./HubStatus.js":3,"./Request.js":4,"./Response.js":5,"./Util.js":6,"./Window.js":7,"./WindowChannel.js":8}],2:[function(require,module,exports){
 'use strict';
 
 /**
@@ -392,11 +393,13 @@ exports.default = HubStatus;
 },{}],4:[function(require,module,exports){
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _Util = require('./Util');
+var _Util = require('./Util.js');
 
 var _Util2 = _interopRequireDefault(_Util);
 
@@ -409,28 +412,135 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  *
  * @class Request
  *
- * @requires Util
  */
 
-var Request =
-/**
- * Cross Post Message Client Request
- *
- * @private
- * @param {object} attributes
- * @constructor
- */
-function Request(attributes) {
-  _classCallCheck(this, Request);
+var Request = function () {
 
-  _Util2.default.extend(this, attributes);
-  this.event = 'request';
-  this.id = _Util2.default.generateUUID();
-};
+  /**
+   *
+   * @param {object} attributes
+   * @param {string} [id=null] A uuid to identify the request, if null it will be generated
+   *
+   * @constructor
+   */
+
+  function Request(attributes) {
+    var id = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+    _classCallCheck(this, Request);
+
+    _Util2.default.extend(this, attributes);
+    this.type = Request.TYPE;
+    this.id = id || _Util2.default.generateUUID();
+  }
+
+  /**
+   * Check if raw request is a serialized request
+   *
+   * @param {object} rawRequest
+   * @returns {*|boolean}
+   */
+
+  _createClass(Request, null, [{
+    key: 'isRaw',
+    value: function isRaw(rawRequest) {
+      return rawRequest && rawRequest.type === Request.TYPE && rawRequest.id;
+    }
+
+    /**
+     * Instantiate a new Request from a serialized request
+     * @param rawRequest
+     */
+
+  }, {
+    key: 'fromRaw',
+    value: function fromRaw(rawRequest) {
+      return new Request(rawRequest, rawRequest.id);
+    }
+  }]);
+
+  return Request;
+}();
 
 exports.default = Request;
 
-},{"./Util":5}],5:[function(require,module,exports){
+Request.TYPE = 'request';
+
+},{"./Util.js":6}],5:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _Util = require('./Util.js');
+
+var _Util2 = _interopRequireDefault(_Util);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Cross Post Message Hub Response
+ *
+ * @class Response
+ *
+ */
+
+var Response = function () {
+
+  /**
+   * @param {Request} request A client request
+   * @param {object} [attributes] Response attributes
+   * @constructor
+   */
+
+  function Response(request, attributes) {
+    _classCallCheck(this, Response);
+
+    _Util2.default.extend(this, attributes || {});
+    this.type = Response.TYPE;
+    this.request = request;
+  }
+
+  /**
+   * Check if raw response is a serialized response
+   *
+   * @param {object} rawResponse
+   * @returns {*|boolean}
+   */
+
+  _createClass(Response, null, [{
+    key: 'isRaw',
+    value: function isRaw(rawResponse) {
+      return rawResponse && rawResponse.type === Response.TYPE && rawResponse.request;
+    }
+
+    /**
+     * Instantiate a new Response from a serialized response
+     *
+     * @param {object} rawResponse
+     * @returns {Response} Response
+     */
+
+  }, {
+    key: 'fromRaw',
+    value: function fromRaw(rawResponse) {
+      return new Response(rawResponse.request, rawResponse);
+    }
+  }]);
+
+  return Response;
+}();
+
+exports.default = Response;
+
+Response.TYPE = 'response';
+
+},{"./Util.js":6}],6:[function(require,module,exports){
 'use strict';
 
 /**
@@ -501,7 +611,7 @@ var Util = {
 
 exports.default = Util;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -509,7 +619,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = window;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 /**
@@ -559,10 +669,10 @@ var WindowChannel = function () {
 
 exports.default = WindowChannel;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
-var _Client = require('../Client');
+var _Client = require('../Client.js');
 
 var _Client2 = _interopRequireDefault(_Client);
 
@@ -570,4 +680,4 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 window.CrossPostMessageClient = _Client2.default;
 
-},{"../Client":1}]},{},[8]);
+},{"../Client.js":1}]},{},[9]);

@@ -11,19 +11,23 @@ var _WindowChannel = require('./WindowChannel.js');
 
 var _WindowChannel2 = _interopRequireDefault(_WindowChannel);
 
-var _HubStatus = require('./HubStatus');
+var _HubStatus = require('./HubStatus.js');
 
 var _HubStatus2 = _interopRequireDefault(_HubStatus);
 
-var _Util = require('./Util');
+var _Util = require('./Util.js');
 
 var _Util2 = _interopRequireDefault(_Util);
 
-var _Response = require('./Response');
+var _Response = require('./Response.js');
 
 var _Response2 = _interopRequireDefault(_Response);
 
-var _Window = require('./Window');
+var _Request = require('./Request.js');
+
+var _Request2 = _interopRequireDefault(_Request);
+
+var _Window = require('./Window.js');
 
 var _Window2 = _interopRequireDefault(_Window);
 
@@ -35,12 +39,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * Cross Post Message Hub
  *
  * @class Hub
- *
- * @requires WindowChannel
- * @requires HubStatus
- * @requires Util
- * @requires Response
- * @requires Window
  */
 
 var Hub = function () {
@@ -127,6 +125,7 @@ function installListener() {
   var _this = this;
 
   _Window2.default.addEventListener('message', function (e) {
+    var rawRequest = undefined;
     if (_this._debug) {
       console.log('hub receive a message', e);
     }
@@ -136,13 +135,13 @@ function installListener() {
       return;
     }
     try {
-      var request = JSON.parse(e.data);
+      rawRequest = JSON.parse(e.data);
     } catch (e) {
       console.error(e);
     }
 
-    if (request && request.event === 'request') {
-      onRequest.call(_this, request, e);
+    if (_Request2.default.isRaw(rawRequest)) {
+      onRequest.call(_this, _Request2.default.fromRaw(rawRequest), e);
     }
   }, true);
 }
@@ -231,7 +230,7 @@ function checkOrigin(origin) {
   return this._allowedOrigins.indexOf(origin) > -1;
 }
 
-},{"./HubStatus":2,"./Response":3,"./Util":4,"./Window":5,"./WindowChannel.js":6}],2:[function(require,module,exports){
+},{"./HubStatus.js":2,"./Request.js":3,"./Response.js":4,"./Util.js":5,"./Window.js":6,"./WindowChannel.js":7}],2:[function(require,module,exports){
 'use strict';
 
 /**
@@ -251,11 +250,89 @@ exports.default = HubStatus;
 },{}],3:[function(require,module,exports){
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _Util = require('./Util');
+var _Util = require('./Util.js');
+
+var _Util2 = _interopRequireDefault(_Util);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Cross Post Message Client Request
+ *
+ * @class Request
+ *
+ */
+
+var Request = function () {
+
+  /**
+   *
+   * @param {object} attributes
+   * @param {string} [id=null] A uuid to identify the request, if null it will be generated
+   *
+   * @constructor
+   */
+
+  function Request(attributes) {
+    var id = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+    _classCallCheck(this, Request);
+
+    _Util2.default.extend(this, attributes);
+    this.type = Request.TYPE;
+    this.id = id || _Util2.default.generateUUID();
+  }
+
+  /**
+   * Check if raw request is a serialized request
+   *
+   * @param {object} rawRequest
+   * @returns {*|boolean}
+   */
+
+  _createClass(Request, null, [{
+    key: 'isRaw',
+    value: function isRaw(rawRequest) {
+      return rawRequest && rawRequest.type === Request.TYPE && rawRequest.id;
+    }
+
+    /**
+     * Instantiate a new Request from a serialized request
+     * @param rawRequest
+     */
+
+  }, {
+    key: 'fromRaw',
+    value: function fromRaw(rawRequest) {
+      return new Request(rawRequest, rawRequest.id);
+    }
+  }]);
+
+  return Request;
+}();
+
+exports.default = Request;
+
+Request.TYPE = 'request';
+
+},{"./Util.js":5}],4:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _Util = require('./Util.js');
 
 var _Util2 = _interopRequireDefault(_Util);
 
@@ -268,27 +345,59 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  *
  * @class Response
  *
- * @requires Util
  */
 
-var Response =
+var Response = function () {
 
-/**
- * @param {Request} request A client request
- * @param {object} [attributes] Response attributes
- * @constructor
- */
-function Response(request, attributes) {
-  _classCallCheck(this, Response);
+  /**
+   * @param {Request} request A client request
+   * @param {object} [attributes] Response attributes
+   * @constructor
+   */
 
-  _Util2.default.extend(this, attributes || {});
-  this.event = 'response';
-  this.request = request;
-};
+  function Response(request, attributes) {
+    _classCallCheck(this, Response);
+
+    _Util2.default.extend(this, attributes || {});
+    this.type = Response.TYPE;
+    this.request = request;
+  }
+
+  /**
+   * Check if raw response is a serialized response
+   *
+   * @param {object} rawResponse
+   * @returns {*|boolean}
+   */
+
+  _createClass(Response, null, [{
+    key: 'isRaw',
+    value: function isRaw(rawResponse) {
+      return rawResponse && rawResponse.type === Response.TYPE && rawResponse.request;
+    }
+
+    /**
+     * Instantiate a new Response from a serialized response
+     *
+     * @param {object} rawResponse
+     * @returns {Response} Response
+     */
+
+  }, {
+    key: 'fromRaw',
+    value: function fromRaw(rawResponse) {
+      return new Response(rawResponse.request, rawResponse);
+    }
+  }]);
+
+  return Response;
+}();
 
 exports.default = Response;
 
-},{"./Util":4}],4:[function(require,module,exports){
+Response.TYPE = 'response';
+
+},{"./Util.js":5}],5:[function(require,module,exports){
 'use strict';
 
 /**
@@ -359,7 +468,7 @@ var Util = {
 
 exports.default = Util;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -367,7 +476,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = window;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 /**
@@ -417,10 +526,10 @@ var WindowChannel = function () {
 
 exports.default = WindowChannel;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
-var _Hub = require('../Hub');
+var _Hub = require('../Hub.js');
 
 var _Hub2 = _interopRequireDefault(_Hub);
 
@@ -428,4 +537,4 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 window.CrossPostMessageHub = _Hub2.default;
 
-},{"../Hub":1}]},{},[7]);
+},{"../Hub.js":1}]},{},[8]);
