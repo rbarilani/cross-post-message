@@ -9,6 +9,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var Window = require('./Window');
 var WindowChannel = require('./WindowChannel');
 var HubStatus = require('./HubStatus');
 var Util = require('./Util');
@@ -88,7 +89,7 @@ var Client = function (_EventEmitter) {
       this._hub.postMessage(_request, this._origin);
 
       return new this._Promise(function (resolve, reject) {
-        var timeout = setTimeout(function () {
+        var timeout = Window.setTimeout(function () {
           delete _this2._pendingRequests[_request.id];
           reject(new Error('cross-post-message-client request. Timeout error', _request));
         }, _opt.timeout || _this2._timeout);
@@ -199,7 +200,7 @@ function createFrame(url, id) {
 
   var frame, key;
 
-  frame = window.document.createElement('iframe');
+  frame = Window.document.createElement('iframe');
   frame.id = id;
 
   // Style the iframe
@@ -209,7 +210,7 @@ function createFrame(url, id) {
     }
   }
 
-  window.document.body.appendChild(frame);
+  Window.document.body.appendChild(frame);
   frame.src = url;
 
   return frame;
@@ -232,15 +233,15 @@ function getOrigin(url) {
       protocol = undefined,
       origin = undefined;
 
-  uri = document.createElement('a');
+  uri = Window.document.createElement('a');
   uri.href = url;
 
   if (!uri.host) {
-    uri = window.location;
+    uri = Window.location;
   }
 
   if (!uri.protocol || uri.protocol === ':') {
-    protocol = window.location.protocol;
+    protocol = Window.location.protocol;
   } else {
     protocol = uri.protocol;
   }
@@ -251,7 +252,7 @@ function getOrigin(url) {
   return origin;
 }
 
-},{"./EventEmitter":2,"./HubStatus":3,"./Request":4,"./Util":5,"./WindowChannel":6}],2:[function(require,module,exports){
+},{"./EventEmitter":2,"./HubStatus":3,"./Request":5,"./Util":6,"./Window":7,"./WindowChannel":8}],2:[function(require,module,exports){
 'use strict';
 
 /**
@@ -339,6 +340,11 @@ var HubStatus = {
 exports.default = HubStatus;
 
 },{}],4:[function(require,module,exports){
+"use strict";
+
+module.exports = window.Math;
+
+},{}],5:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -371,9 +377,15 @@ function Request(attributes) {
 
 module.exports = Request;
 
-},{"./Util":5}],5:[function(require,module,exports){
+},{"./Util":6}],6:[function(require,module,exports){
 'use strict';
 
+var Math = require('./Math');
+
+/**
+ * @name Util
+ * @requires Math
+ */
 var Util = {
   /**
    * UUID v4 generation, taken from: http://stackoverflow.com/questions/
@@ -419,7 +431,7 @@ var Util = {
   /**
    * Extend source with target properties
    * @param {object} source
-   * @param {target} target
+   * @param {object} target
    * @returns {*}
    */
   extend: function extend(source, target) {
@@ -434,12 +446,16 @@ var Util = {
 
 module.exports = Util;
 
-},{}],6:[function(require,module,exports){
+},{"./Math":4}],7:[function(require,module,exports){
+"use strict";
+
+module.exports = window;
+
+},{}],8:[function(require,module,exports){
 'use strict';
 
 /**
  * @class WindowChannel
- * @requires Window
  */
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();

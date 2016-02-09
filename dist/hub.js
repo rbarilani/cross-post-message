@@ -5,6 +5,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var Window = require('./Window');
 var Response = require('./Response');
 var Util = require('./Util');
 var WindowChannel = require('./WindowChannel');
@@ -15,8 +16,11 @@ var HubStatus = require('./HubStatus');
  *
  * @class Hub
  *
+ * @requires Window
  * @requires Response
  * @requires Util
+ * @requires WindowChannel
+ * @requires HubStatus
  */
 
 var Hub = function () {
@@ -101,7 +105,7 @@ module.exports = Hub;
 function installListener() {
   var _this = this;
 
-  window.addEventListener('message', function (e) {
+  Window.addEventListener('message', function (e) {
     if (_this._debug) {
       console.log('hub receive a message', e);
     }
@@ -206,7 +210,7 @@ function checkOrigin(origin) {
   return this._allowedOrigins.indexOf(origin) > -1;
 }
 
-},{"./HubStatus":2,"./Response":3,"./Util":4,"./WindowChannel":5}],2:[function(require,module,exports){
+},{"./HubStatus":2,"./Response":4,"./Util":5,"./Window":6,"./WindowChannel":7}],2:[function(require,module,exports){
 'use strict';
 
 /**
@@ -224,6 +228,11 @@ var HubStatus = {
 exports.default = HubStatus;
 
 },{}],3:[function(require,module,exports){
+"use strict";
+
+module.exports = window.Math;
+
+},{}],4:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -255,9 +264,15 @@ function Response(request, attributes) {
 
 module.exports = Response;
 
-},{"./Util":4}],4:[function(require,module,exports){
+},{"./Util":5}],5:[function(require,module,exports){
 'use strict';
 
+var Math = require('./Math');
+
+/**
+ * @name Util
+ * @requires Math
+ */
 var Util = {
   /**
    * UUID v4 generation, taken from: http://stackoverflow.com/questions/
@@ -303,7 +318,7 @@ var Util = {
   /**
    * Extend source with target properties
    * @param {object} source
-   * @param {target} target
+   * @param {object} target
    * @returns {*}
    */
   extend: function extend(source, target) {
@@ -318,12 +333,16 @@ var Util = {
 
 module.exports = Util;
 
-},{}],5:[function(require,module,exports){
+},{"./Math":3}],6:[function(require,module,exports){
+"use strict";
+
+module.exports = window;
+
+},{}],7:[function(require,module,exports){
 'use strict';
 
 /**
  * @class WindowChannel
- * @requires Window
  */
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
