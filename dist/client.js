@@ -328,16 +328,18 @@ var EventEmitter = function () {
 
   }, {
     key: 'trigger',
-    value: function trigger(eventName, /* ... */args) {
+    value: function trigger(eventName) {
       var _this = this;
 
-      var _args = Array.prototype.slice.call(arguments);
-      _args.shift();
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
       if (!this._callbacks[eventName]) {
         return this;
       }
       this._callbacks[eventName].forEach(function (cb) {
-        cb.apply(_this, _args);
+        cb.apply(_this, args);
       });
 
       return this;
